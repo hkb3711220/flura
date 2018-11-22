@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import numpy as np
 import urllib
 import os
-from PIL import Image
 
 os.chdir(os.path.dirname(__file__))
 
@@ -18,9 +17,10 @@ class search(object):
         self.target = target
         self.res_text = self._reponse()
         self.product_full_names, self.std_prices, self.sale_prices, self.discount_rate = self._get_info()
-        self.img_name = self._download_img()
+        self.hrefs, self.img_name = self._download_img()
 
     def _reponse(self):
+
         url = 'https://www.furla.com/us/en/eshop/search/?lang=default&q={}'.format(str(self.target))
         try:
             response = requests.get(url, headers = self.HEADER)
@@ -73,6 +73,7 @@ class search(object):
 
         divs = self.res_text.find_all('div', attrs={'class':'product-image'})
         srcs = [div.a.img['src'] for div in divs]
+        hrefs = [div.a['href'] for div in divs]
 
         name = self.product_full_names[0].split(' ')
         name = '_'.join(name)
@@ -89,6 +90,4 @@ class search(object):
             else:
                 urllib.request.urlretrieve(src, save_path)
 
-        return img_name
-
-#print(search(target='alba')._download_img())
+        return hrefs, img_name
